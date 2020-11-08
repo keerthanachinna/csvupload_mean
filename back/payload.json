@@ -1,0 +1,26 @@
+// {"url": "localhost:3000/csv/add"}
+// ,{"method": "post"},
+// {"req payload"},
+{
+    
+    "Sheet1": [
+        {
+            "name": "keerthana",
+            "salary": 8999,
+            "position": "developer",
+            "office": "osiz"
+        },
+        {
+            "name": "keerthana",
+            "salary": 9888,
+            "position": "developer",
+            "office": "osiz"
+        },
+        {
+            "name": "keerthana",
+            "salary": 77777,
+            "position": "developer",
+            "office": "osiz"
+        }
+    ]
+}
