@@ -2,9 +2,17 @@
 
 <input type="file" (change)="onFileChange($event)" multiple="false" />
 
+<div id="output"></div>
+<br>
+<div *ngIf="willDownload">
+	<a id="download"> Download JSON File </a>
+</div>
 <table>
     <tbody>
-        <tr *ngFor="let row of data">
+        <thead>
+            <th>name</th>
+        </thead>
+        <tr *ngFor="let row of userDetails">
                 <td *ngFor="let cell of row">
                         {{cell}}
                 </td>

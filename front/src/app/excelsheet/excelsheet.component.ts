@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ExcelService } from '../shared/excel.service';
 import * as XLSX from 'xlsx';
 
 @Component({
@@ -9,39 +10,50 @@ import * as XLSX from 'xlsx';
 export class ExcelsheetComponent implements OnInit {
 
   data: [][];
-  constructor() { }
-
+  name = 'This is XLSX TO JSON CONVERTER';
+  willDownload = false;
+  constructor(private excelService: ExcelService) { }
+  userDetails;
   ngOnInit(): void {
+    this.excelService.getUserProfile().subscribe(
+      res => {
+        console.log(res)
+        this.userDetails = res;
+      },
+      err => { 
+        console.log(err);
+        
+      }
+    );
   }
-  onFileChange(evt: any) {
-    const target : DataTransfer =  <DataTransfer>(evt.target);
-    
-    if (target.files.length !== 1) throw new Error('Cannot use multiple files');
+  onFileChange(ev) {
+    let workBook = null;
+    let jsonData = null;
+    const reader = new FileReader();
+    const file = ev.target.files[0];
+    reader.onload = (event) => {
+      const data = reader.result;
+      workBook = XLSX.read(data, { type: 'binary' });
+      jsonData = workBook.SheetNames.reduce((initial, name) => {
+        const sheet = workBook.Sheets[name];
+        initial[name] = XLSX.utils.sheet_to_json(sheet);
+        return initial;
+      }, {});
+      const dataString = JSON.stringify(jsonData);
+      document.getElementById('output').innerHTML = dataString.slice(0, 300).concat("...");
+      this.setDownload(dataString);
+    }
+    reader.readAsBinaryString(file);
+  }
 
-    const reader: FileReader = new FileReader();
 
-    reader.onload = (e: any) => {
-      const bstr: string = e.target.result;
-
-      const wb: XLSX.WorkBook = XLSX.read(bstr, { type: 'binary' });
-
-      const wsname : string = wb.SheetNames[0];
-
-      const ws: XLSX.WorkSheet = wb.Sheets[wsname];
-
-      console.log(ws);
-
-      this.data = (XLSX.utils.sheet_to_json(ws, { header: 1 }));
-
-      console.log(this.data);
-
-      let x = this.data.slice(1);
-      console.log(x);
-
-    };
-
-    reader.readAsBinaryString(target.files[0]);
-
+  setDownload(data) {
+    this.willDownload = true;
+    setTimeout(() => {
+      const el = document.querySelector("#download");
+      el.setAttribute("href", `data:text/json;charset=utf-8,${encodeURIComponent(data)}`);
+      el.setAttribute("download", 'xlsxtojson.json');
+    }, 1000)
   }
 
 }
